@@ -28,8 +28,7 @@ O tqdm é utilizado para imprimir a barra de progresso.
 
 ```
   import tqdm
-  
-  progress = tqdm.tqdm(range(filesize), f"Enviando {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+
 ```
 
 Precisamos especificar o endereço IP e a porta do servidor o qual queremos nos conectar, e também o nome do arquivo que queremos enviar.
@@ -50,3 +49,52 @@ print("Digite o ip ou nome do servidor ao qual deseja conectar(vazio para finali
     if not filename:
         sys.exit(0)
 ```
+Obtém o tamanho do arquivo encaminhado em bytes, pois precisamos dele para imprimir a barra de progresso no cliente e no servidor.
+```
+filesize = os.path.getsize(filename)
+```
+
+Após obtermos todas as informações necessárias vamos criar o socket tcp:
+```
+ s = socket.socket()
+```
+
+Conectando-se ao servidor:
+
+```
+ s.connect((host, port))
+```
+
+O método connect () espera um endereço do par (host, porta) para conectar o socket a esse endereço. 
+Assim que a conexão é estabelecida, enviamos o nome e o tamanho do arquivo:
+
+```
+    s.send(f"{filename}{SEPARATOR}{filesize}".encode())
+```
+
+Agora enviamos o arquivo, e imprimimos barras de progresso usando a biblioteca tqdm :
+
+```
+ # começa a enviar o arquivo
+    progress = tqdm.tqdm(range(filesize), f"Enviando {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+    with open(filename, "rb") as f:
+        for _ in progress:
+            # lê os bytes do arquivo
+            bytes_read = f.read(BUFFER_SIZE)
+            if not bytes_read:
+                # transmissão finalizada
+                progress.close()
+                print("Envio finalizado\n")
+                break
+            # usa-se sendall para garantir a transmissão do arquivo completo
+            s.sendall(bytes_read)
+            # atualiza a barra de progresso
+            progress.update(len(bytes_read))
+    # fecha o socket
+    s.close()
+```
+
+O que estamos fazendo aqui é abrir o arquivo em binário, ler pedaços do arquivo e enviá-los ao soquete usando a função sendall() , e atualizarmos a barra de progresso, assim que acabar, fechamos o socket.
+
+
+
