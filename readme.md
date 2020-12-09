@@ -1,6 +1,7 @@
 ### Propósito do software
- Compartilhar arquivos de forma fácil e rápido a partir da linha de comando.Este código contém o arquivo de servidor e cliente onde o cliente e o servidor se comunicam através de um socket TCP, utilizado devido a sua confiabilidade no transporte dos dados, usamos o protocolo IP associado ao TCP (que garante a entrega das informações). 
- 
+
+ Compartilhar arquivos de forma fácil e rápido a partir da linha de comando. A ideia consiste em criar um servidor que escute em uma porta,ficando respónsavel pelo recebimento dos arquivos, enquanto no outro lado do cliente, o cliente irá se conectar ao servidor e enviar o arquivos. Onde o cliente e o servidor se comunicaram através de um socket TCP, utilizado devido a sua confiabilidade no transporte dos dados. Usamos o protocolo IP associado ao TCP (que garante a entrega das informações). Vamos usar o módulo de socket que vem embutido com o Python e nos fornece operações de socket.
+
 ### Requerimentos
 * Python 3.2 ou superior
 * Módulo tqdm
