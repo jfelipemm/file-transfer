@@ -1,6 +1,7 @@
 ### Requerimentos
 * Python 3.2 ou superior
 * Módulo tqdm
+* Módulo socket
 
 ### Como instalar o tqdm
 Com o python instalado, execute o seguinte comando no terminal:
@@ -16,7 +17,7 @@ O nome do arquivo deve conter a extensão `.py`.
 Execute o arquivo `servidor.py` contido na pasta `servidor`. Ele é o responsável por ficar escutando as requisições dos clientes. Ele suporta apenas uma transferência de arquivo por vez.
 Em seguida execute o arquivo `cliente.py` na pasta `cliente`. É necessário informar o ip, porta e arquivo que deseja transferir.
 
-### Funcionamento do programa
+### Funcionamento do programa (Cliente)
 
 Compartilhamento de arquivos fácil e rápido a partir da linha de comando. Este código contém o arquivo de servidor e cliente onde o cliente e o servidor se comunicam através de um socket TCP, utilizado devido a sua confiabilidade no transporte dos dados, usamos o protocolo IP associado ao TCP (que garante a entrega das informações). 
 
@@ -98,3 +99,22 @@ O que estamos fazendo aqui é abrir o arquivo em binário, ler pedaços do arqui
 
 
 
+### Funcionamento do programa (Servidor)
+
+
+
+Inicializamos alguns parâmetros, o "0.0.0.0" como o endereço IP do servidor para ouvir tanto pelo ip local como pelo ip da rede. Além disso, usarmos a mesma porta no servidor e no cliente.
+
+```
+import socket
+import tqdm
+import os
+import threading
+import sys
+
+# ip a ser utilizado para receber envios
+# usa-se 0.0.0.0 para ouvir tanto pelo ip local(127.0.0.1) ou pelo ip da rede
+SERVER_HOST = "0.0.0.0"
+SERVER_PORT = 5001
+
+```
