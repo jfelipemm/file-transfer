@@ -184,7 +184,7 @@ s.bind((SERVER_HOST, SERVER_PORT))
 
 ```
 
-Ouvivos a conexão:
+Ouvir as conexões:
 ```
 while True:
     try:
