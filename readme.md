@@ -103,7 +103,7 @@ O que estamos fazendo aqui é abrir o arquivo em binário, ler pedaços do arqui
 
 
 
-Inicializamos alguns parâmetros, o "0.0.0.0" como o endereço IP do servidor para ouvir tanto pelo ip local como pelo ip da rede. Além disso, usarmos a mesma porta no servidor e no cliente.
+Inicializamos alguns parâmetros, o "0.0.0.0" como o endereço IP do servidor para ouvir tanto pelo ip local como pelo ip da rede. Além disso, usamos a mesma porta no servidor e no cliente.
 
 ```
 import socket
@@ -116,5 +116,87 @@ import sys
 # usa-se 0.0.0.0 para ouvir tanto pelo ip local(127.0.0.1) ou pelo ip da rede
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 5001
+
+```
+
+
+Quando o cliente estiver conectado ele enviará o nome e o tamanho do arquivo:
+```
+def receive_file(s):
+    global is_waiting
+    is_waiting = True
+    
+    print(f"[*] Escutando em {SERVER_HOST}:{SERVER_PORT}")
+    # aceita a conexão se existir alguma
+    client_socket, address = s.accept()
+    # somente executa se algum cliente se conectou
+    print(f"[+] {address} se conectou.")
+
+    # recebe as informações do arquivo
+    # recebe pelo socket do cliente
+    received = client_socket.recv(BUFFER_SIZE).decode()
+    filename, filesize = received.split(SEPARATOR)
+    # remove o caminho absoluto do arquivo(se existir)
+    # para pegar só o nome do arquivo
+    filename = os.path.basename(filename)
+    # converte o tamanho do arquivo para int
+    filesize = int(filesize)
+```   
+
+Estamos abrindo o arquivo como gravação em binário, usando recv (BUFFER_SIZE) para receber bytes BUFFER_SIZE do soquete do cliente e gravá-lo no arquivo. Assim que terminarmos, fechamos o socket do cliente e do servidor.
+
+```
+    # começa a receber o arquivo e escrever na stream
+    progress = tqdm.tqdm(range(filesize), f"Recebendo {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+    with open(filename, "wb") as f:
+        for _ in progress:
+            # lê os bytes do socket
+            bytes_read = client_socket.recv(BUFFER_SIZE)
+            if not bytes_read:    
+                # se nada foi recebido, finaliza a conexão
+                progress.close()
+                print("Recebimento finalizado\n")
+                break
+            # escreve no arquivo o que recebeu
+            f.write(bytes_read)
+            # atualiza a barra de progresso
+            progress.update(len(bytes_read))
+    # fecha o socket com o cliente
+    client_socket.close()
+    is_waiting = False
+
+```
+
+Vamos criar nosso socket TCP:
+
+```
+# cria o socket tcp do servidor
+s = socket.socket()
+
+```
+Agora que é diferente do cliente, precisamos vincular o socket que criamos ao nosso SERVER_HOST e SERVER_PORT:
+
+```
+# vincula o socket ao endereço especificado
+s.bind((SERVER_HOST, SERVER_PORT))
+
+```
+
+Ouvivos a conexão:
+```
+while True:
+    try:
+        # permite ao servidor aceitar conexões
+        # 5 é o número máximo de conexões recusadas até parar de aceitar novas
+        s.listen(5)
+        if not is_waiting:
+                t = threading.Thread(target=receive_file, args=(s,), daemon=True)
+                t.start()
+    except KeyboardInterrupt:
+        print("Finalizando servidor...")
+        sys.exit(1)
+
+# fecha o socket do servidor
+s.close()
 
 ```
