@@ -1,6 +1,10 @@
 ### Propósito do software
 
- Compartilhar arquivos de forma fácil e rápido a partir da linha de comando. A ideia consiste em criar um servidor que escute em uma porta,ficando respónsavel pelo recebimento dos arquivos, enquanto no outro lado do cliente, o cliente irá se conectar ao servidor e enviar o arquivos. Onde o cliente e o servidor se comunicaram através de um socket TCP, utilizado devido a sua confiabilidade no transporte dos dados. Usamos o protocolo IP associado ao TCP (que garante a entrega das informações). Vamos usar o módulo de socket que vem embutido com o Python e nos fornece operações de socket.
+ Compartilhar arquivos de forma fácil e rápido a partir da linha de comando. A ideia consiste em criar um servidor que escute em uma porta,ficando respónsavel pelo recebimento dos arquivos, enquanto no outro lado do cliente, o cliente irá se conectar ao servidor e enviar o arquivos. Onde o cliente e o servidor se comunicaram através de um socket TCP, utilizado devido a sua confiabilidade no transporte dos dados. 
+
+### Por que TCP ?
+Precisamos de confiabilidade no transporte do arquivo, usamos o protocolo IP associado ao TCP (que garante a entrega das informações). Vamos usar o módulo de socket que vem embutido com o Python e nos fornece operações de socket.
+
 
 ### Requerimentos
 * Python 3.2 ou superior
@@ -76,7 +80,7 @@ Assim que a conexão é estabelecida, enviamos o nome e o tamanho do arquivo:
 ```
 
 Agora enviamos o arquivo, e imprimimos barras de progresso usando a biblioteca tqdm :
-
+Os dados são enviados com a função sendall().
 ```
  # começa a enviar o arquivo
     progress = tqdm.tqdm(range(filesize), f"Enviando {filename}", unit="B", unit_scale=True, unit_divisor=1024)
@@ -123,6 +127,8 @@ SERVER_PORT = 5001
 
 
 Quando o cliente estiver conectado ele enviará o nome e o tamanho do arquivo:
+Os dados são enviados com a função sendall() e, recebidos com a função recv().
+
 ```
 def receive_file(s):
     global is_waiting
