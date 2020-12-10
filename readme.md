@@ -73,7 +73,7 @@ Conectando-se ao servidor:
 ```
 
 O método connect () espera um endereço do par (host, porta) para conectar o socket a esse endereço. 
-Assim que a conexão é estabelecida, enviamos o nome e o tamanho do arquivo:
+Assim que a conexão é estabelecida, enviamos primeiro o nome e o tamanho do arquivo, separados por um código separador, definido no começo do código-fonte. É o mesmo separador que o servidor irá usar para separar a mensagem e obter o nome e tamanho do arquivo:
 
 ```
     s.send(f"{filename}{SEPARATOR}{filesize}".encode())
@@ -125,8 +125,42 @@ SERVER_PORT = 5001
 
 ```
 
+Vamos criar nosso socket TCP:
 
-Quando o cliente estiver conectado ele enviará o nome e o tamanho do arquivo:
+```
+# cria o socket tcp do servidor
+s = socket.socket()
+
+```
+Agora que é diferente do cliente, precisamos vincular o socket que criamos ao nosso SERVER_HOST e SERVER_PORT:
+
+```
+# vincula o socket ao endereço especificado
+s.bind((SERVER_HOST, SERVER_PORT))
+
+```
+
+É criada uma thread que fica responsável por ficar escutando pela conexão. Desse modo, o servidor não fica travado, e podemos finalizar o programa com uma interrupção do teclado(Ctrl+C). Adicionamos, também, a flag `daemon=True` para que, quando o programa for finalizado, ele também finalize as threads criadas por ele.
+
+```
+while True:
+    try:
+        # permite ao servidor aceitar conexões
+        # 5 é o número máximo de conexões recusadas até parar de aceitar novas
+        s.listen(5)
+        if not is_waiting:
+                t = threading.Thread(target=receive_file, args=(s,), daemon=True)
+                t.start()
+    except KeyboardInterrupt:
+        print("Finalizando servidor...")
+        sys.exit(1)
+
+# fecha o socket do servidor
+s.close()
+
+```
+
+Esta é a função executada pela thread. Quando o cliente estiver conectado, ele enviará o nome e o tamanho do arquivo:
 Os dados são enviados com a função sendall() e, recebidos com a função recv().
 
 ```
@@ -151,7 +185,7 @@ def receive_file(s):
     filesize = int(filesize)
 ```   
 
-Estamos abrindo o arquivo como gravação em binário, usando recv (BUFFER_SIZE) para receber bytes BUFFER_SIZE do soquete do cliente e gravá-lo no arquivo. Assim que terminarmos, fechamos o socket do cliente e do servidor.
+Estamos abrindo o arquivo como gravação em binário, usando recv (BUFFER_SIZE) para receber bytes BUFFER_SIZE do soquete do cliente e gravá-lo no arquivo. Assim que terminarmos, fechamos o socket do cliente.
 
 ```
     # começa a receber o arquivo e escrever na stream
@@ -172,39 +206,5 @@ Estamos abrindo o arquivo como gravação em binário, usando recv (BUFFER_SIZE)
     # fecha o socket com o cliente
     client_socket.close()
     is_waiting = False
-
-```
-
-Vamos criar nosso socket TCP:
-
-```
-# cria o socket tcp do servidor
-s = socket.socket()
-
-```
-Agora que é diferente do cliente, precisamos vincular o socket que criamos ao nosso SERVER_HOST e SERVER_PORT:
-
-```
-# vincula o socket ao endereço especificado
-s.bind((SERVER_HOST, SERVER_PORT))
-
-```
-
-Ouvir as conexões:
-```
-while True:
-    try:
-        # permite ao servidor aceitar conexões
-        # 5 é o número máximo de conexões recusadas até parar de aceitar novas
-        s.listen(5)
-        if not is_waiting:
-                t = threading.Thread(target=receive_file, args=(s,), daemon=True)
-                t.start()
-    except KeyboardInterrupt:
-        print("Finalizando servidor...")
-        sys.exit(1)
-
-# fecha o socket do servidor
-s.close()
 
 ```
