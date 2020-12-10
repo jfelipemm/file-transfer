@@ -1,3 +1,9 @@
+### Equipe
+    Gabriel Santos De Souza
+    Jesulino Felipe
+    João Pedro de Gois Pinto
+    Naelton Moreira
+
 ### Propósito do software
 
  Compartilhar arquivos de forma fácil e rápido a partir da linha de comando. A ideia consiste em criar um servidor que escute em uma porta,ficando respónsavel pelo recebimento dos arquivos, enquanto no outro lado do cliente, o cliente irá se conectar ao servidor e enviar o arquivos. Onde o cliente e o servidor se comunicaram através de um socket TCP, utilizado devido a sua confiabilidade no transporte dos dados. 
